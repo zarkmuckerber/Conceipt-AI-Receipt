@@ -34,6 +34,7 @@
     body.off header { border-bottom-color: transparent; }
     body.no-anim .collapsible { transition: none; }
     header h1 { margin: 0; font-size: 14px; font-weight: 650; }
+        #version { font-size: 11px; font-weight: 500; color: var(--muted); margin-left: 4px; }
     header p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
     main { padding: 12px 16px 14px; }
     label { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; font-weight: 600; margin: 10px 0 5px; }
@@ -64,7 +65,7 @@
 <body>
   <header>
     <div>
-      <h1>Conceipt</h1>
+      <h1>Conceipt <span id="version"></span></h1>
       <p id="sub">Choose which AI writes your receipts.</p>
     </div>
     <label class="switch" title="Show or hide the Export Conceipt button on ChatGPT">

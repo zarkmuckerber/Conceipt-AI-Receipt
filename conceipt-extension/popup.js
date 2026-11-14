@@ -12,6 +12,7 @@ const PROVIDERS = {
 };
 
 const $ = (id) => document.getElementById(id);
+$("version").textContent = "v" + chrome.runtime.getManifest().version;
 const providerEl = $("provider"), keyEl = $("apiKey"), modelEl = $("model"), statusEl = $("status");
 const enabledEl = $("enabled");
 
