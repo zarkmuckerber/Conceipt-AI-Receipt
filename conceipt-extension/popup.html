@@ -19,7 +19,20 @@
       margin: 0; width: 320px; background: var(--bg); color: var(--fg);
       font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
     }
-    header { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+    header { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .switch { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-size: 12px; color: var(--muted); }
+    .switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .track { position: relative; width: 34px; height: 20px; border-radius: 999px; background: var(--line); transition: background .15s; flex: none; }
+    .thumb { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: transform .15s; }
+    .switch input:checked + .track { background: var(--ok); }
+    .switch input:checked + .track .thumb { transform: translateX(14px); }
+    .switch input:focus-visible + .track { outline: 2px solid var(--muted); outline-offset: 2px; }
+    /* Settings collapse upward when the switch is off */
+    .collapsible { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .22s ease, opacity .18s ease; }
+    .collapsible > .inner { overflow: hidden; min-height: 0; }
+    body.off .collapsible { grid-template-rows: 0fr; opacity: 0; }
+    body.off header { border-bottom-color: transparent; }
+    body.no-anim .collapsible { transition: none; }
     header h1 { margin: 0; font-size: 14px; font-weight: 650; }
     header p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
     main { padding: 12px 16px 14px; }
@@ -50,10 +63,18 @@
 </head>
 <body>
   <header>
-    <h1>Conceipt</h1>
-    <p>Choose which AI writes your receipts.</p>
+    <div>
+      <h1>Conceipt</h1>
+      <p id="sub">Choose which AI writes your receipts.</p>
+    </div>
+    <label class="switch" title="Show or hide the Export Conceipt button on ChatGPT">
+      <span id="stateLabel">On</span>
+      <input id="enabled" type="checkbox" checked>
+      <span class="track"><span class="thumb"></span></span>
+    </label>
   </header>
 
+  <div class="collapsible"><div class="inner">
   <main>
     <label for="provider">Provider</label>
     <select id="provider">
@@ -85,6 +106,7 @@
   </main>
 
   <footer>Key stays in this browser. Chat text is sent only to the provider above.</footer>
+  </div></div>
 
   <script src="popup.js"></script>
 </body>

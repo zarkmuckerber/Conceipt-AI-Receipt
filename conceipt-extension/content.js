@@ -263,6 +263,16 @@
   `;
   document.documentElement.appendChild(host);
 
+  // ---------- On/off switch (set from the toolbar popup) ----------
+  function applyEnabled(on) {
+    host.style.display = on ? "" : "none";
+    if (!on) root.getElementById("overlay").classList.remove("open");
+  }
+  chrome.storage.local.get("enabled").then((s) => applyEnabled(s.enabled !== false));
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && changes.enabled) applyEnabled(changes.enabled.newValue !== false);
+  });
+
   const $ = (id) => root.getElementById(id);
   const fab = $("fab"), overlay = $("overlay"), out = $("out"), status = $("status"), fname = $("fname");
 

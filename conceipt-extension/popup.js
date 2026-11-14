@@ -25,7 +25,25 @@ function refresh() {
   $("getKey").href = KEY_PAGES[p];
 }
 
-chrome.storage.local.get(["provider", "apiKey", "model"]).then((s) => {
+const enabledEl = $("enabled");
+
+function showEnabled(on) {
+  enabledEl.checked = on;
+  $("stateLabel").textContent = on ? "On" : "Off";
+  $("sub").textContent = on ? "Choose which AI writes your receipts." : "Paused. Button hidden on ChatGPT.";
+  document.body.classList.toggle("off", !on);
+  document.querySelector(".collapsible").inert = !on; // hidden fields can't be tabbed into
+}
+
+enabledEl.addEventListener("change", async () => {
+  showEnabled(enabledEl.checked);
+  await chrome.storage.local.set({ enabled: enabledEl.checked });
+});
+
+chrome.storage.local.get(["provider", "apiKey", "model", "enabled"]).then((s) => {
+  document.body.classList.add("no-anim");
+  showEnabled(s.enabled !== false);
+  requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove("no-anim")));
   providerEl.value = s.provider || "openrouter";
   keyEl.value = s.apiKey || "";
   modelEl.value = s.model || "";
@@ -54,4 +72,4 @@ async function save() {
 }
 
 $("save").addEventListener("click", save);
-document.addEventListener("keydown", (e) => { if (e.key === "Enter") save(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target !== enabledEl) save(); });
