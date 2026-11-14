@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conceipt settings</title>
+  <style>
+    :root {
+      --bg: #ffffff; --fg: #111111; --muted: #6b6b6b; --line: #e6e6e6;
+      --field: #f6f6f6; --accent: #111111; --accent-fg: #ffffff; --ok: #1a7f37;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1b1b1b; --fg: #f2f2f2; --muted: #9a9a9a; --line: #2e2e2e;
+        --field: #262626; --accent: #f2f2f2; --accent-fg: #111111; --ok: #4ac26b;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; width: 320px; background: var(--bg); color: var(--fg);
+      font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    header { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+    header h1 { margin: 0; font-size: 14px; font-weight: 650; }
+    header p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+    main { padding: 12px 16px 14px; }
+    label { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; font-weight: 600; margin: 10px 0 5px; }
+    label:first-child { margin-top: 0; }
+    label a { font-weight: 400; color: var(--muted); text-decoration: none; }
+    label a:hover { color: var(--fg); text-decoration: underline; }
+    select, input {
+      width: 100%; padding: 7px 9px; font: inherit; color: var(--fg);
+      background: var(--field); border: 1px solid var(--line); border-radius: 7px; outline: none;
+    }
+    select:focus, input:focus { border-color: var(--muted); }
+    .key { position: relative; }
+    .key input { padding-right: 52px; }
+    .key button {
+      position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+      border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 11px; padding: 4px 6px; cursor: pointer;
+    }
+    .key button:hover { color: var(--fg); }
+    .row { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+    #save {
+      border: 0; border-radius: 7px; padding: 7px 16px; font: inherit; font-weight: 600;
+      background: var(--accent); color: var(--accent-fg); cursor: pointer;
+    }
+    #status { font-size: 12px; color: var(--ok); }
+    footer { padding: 9px 16px 12px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Conceipt</h1>
+    <p>Choose which AI writes your receipts.</p>
+  </header>
+
+  <main>
+    <label for="provider">Provider</label>
+    <select id="provider">
+      <optgroup label="Free tier">
+        <option value="openrouter">OpenRouter (free models)</option>
+        <option value="groq">Groq</option>
+        <option value="gemini">Google Gemini</option>
+        <option value="mistral">Mistral</option>
+      </optgroup>
+      <optgroup label="Paid">
+        <option value="openai">OpenAI</option>
+        <option value="anthropic">Anthropic (Claude)</option>
+      </optgroup>
+    </select>
+
+    <label for="apiKey">API key <a id="getKey" href="#" target="_blank" rel="noopener">Get a key ↗</a></label>
+    <div class="key">
+      <input id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your API key">
+      <button id="toggle" type="button">Show</button>
+    </div>
+
+    <label for="model">Model</label>
+    <input id="model" type="text" autocomplete="off" spellcheck="false">
+
+    <div class="row">
+      <button id="save">Save</button>
+      <span id="status"></span>
+    </div>
+  </main>
+
+  <footer>Key stays in this browser. Chat text is sent only to the provider above.</footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
