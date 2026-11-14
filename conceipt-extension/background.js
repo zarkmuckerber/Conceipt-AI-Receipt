@@ -1,20 +1,11 @@
 // Conceipt background service worker: turns a transcript into a session receipt via an LLM API.
 
 const DEFAULT_MODELS = {
-  openai: "gpt-4.1-mini",
-  anthropic: "claude-sonnet-4-5",
-  gemini: "gemini-3.8-flash",
   openrouter: "openrouter/free",
-  groq: "openai/gpt-oss-120b",
-  mistral: "mistral-small-latest"
+  gemini: "gemini-3.8-flash"
 };
 
-// Free-tier providers that speak the OpenAI chat-completions format.
-const OPENAI_COMPATIBLE = {
-  openrouter: { url: "https://openrouter.ai/api/v1/chat/completions", label: "OpenRouter" },
-  groq: { url: "https://api.groq.com/openai/v1/chat/completions", label: "Groq" },
-  mistral: { url: "https://api.mistral.ai/v1/chat/completions", label: "Mistral" }
-};
+const PROVIDERS = ["openrouter", "gemini"];
 
 const MAX_TRANSCRIPT_CHARS = 300000; // ~75k tokens; longer chats get their middle trimmed
 
@@ -98,10 +89,10 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 });
 
 async function generateReceipt({ transcript, meta }) {
-  const settings = await chrome.storage.local.get(["provider", "apiKey", "model"]);
-  const provider = settings.provider || "openai";
-  const apiKey = (settings.apiKey || "").trim();
-  const model = (settings.model || "").trim() || DEFAULT_MODELS[provider];
+  const settings = await chrome.storage.local.get(["provider", "apiKeys", "models"]);
+  const provider = PROVIDERS.includes(settings.provider) ? settings.provider : "openrouter";
+  const apiKey = ((settings.apiKeys || {})[provider] || "").trim();
+  const model = ((settings.models || {})[provider] || "").trim() || DEFAULT_MODELS[provider];
   if (!apiKey) throw new Error("NO_KEY");
 
   const userMessage =
@@ -111,10 +102,8 @@ async function generateReceipt({ transcript, meta }) {
     `TRANSCRIPT START\n${trimTranscript(transcript)}\nTRANSCRIPT END`;
 
   let text;
-  if (provider === "openai") text = await callOpenAI(apiKey, model, userMessage);
-  else if (provider === "anthropic") text = await callAnthropic(apiKey, model, userMessage);
+  if (provider === "openrouter") text = await callOpenRouter(apiKey, model, userMessage);
   else if (provider === "gemini") text = await callGemini(apiKey, model, userMessage);
-  else if (OPENAI_COMPATIBLE[provider]) text = await callCompatible(provider, apiKey, model, userMessage);
   else throw new Error(`Unknown provider: ${provider}`);
 
   return stripFences(text);
@@ -179,10 +168,9 @@ async function postJSONOnce(url, headers, body, label) {
   return JSON.parse(raw);
 }
 
-async function callCompatible(provider, key, model, userMessage) {
-  const { url, label } = OPENAI_COMPATIBLE[provider];
+async function callOpenRouter(key, model, userMessage) {
   const data = await postJSON(
-    url,
+    "https://openrouter.ai/api/v1/chat/completions",
     { authorization: `Bearer ${key}` },
     {
       model,
@@ -192,45 +180,9 @@ async function callCompatible(provider, key, model, userMessage) {
         { role: "user", content: userMessage }
       ]
     },
-    label
+    "OpenRouter"
   );
   return data.choices?.[0]?.message?.content || "";
-}
-
-async function callOpenAI(key, model, userMessage) {
-  const data = await postJSON(
-    "https://api.openai.com/v1/chat/completions",
-    { authorization: `Bearer ${key}` },
-    {
-      model,
-      max_completion_tokens: 4096,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: userMessage }
-      ]
-    },
-    "OpenAI"
-  );
-  return data.choices?.[0]?.message?.content || "";
-}
-
-async function callAnthropic(key, model, userMessage) {
-  const data = await postJSON(
-    "https://api.anthropic.com/v1/messages",
-    {
-      "x-api-key": key,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true"
-    },
-    {
-      model,
-      max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: userMessage }]
-    },
-    "Anthropic"
-  );
-  return (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("");
 }
 
 async function callGemini(key, model, userMessage) {

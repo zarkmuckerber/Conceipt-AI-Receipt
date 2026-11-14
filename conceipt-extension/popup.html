@@ -78,21 +78,13 @@
   <main>
     <label for="provider">Provider</label>
     <select id="provider">
-      <optgroup label="Free tier">
-        <option value="openrouter">OpenRouter (free models)</option>
-        <option value="groq">Groq</option>
-        <option value="gemini">Google Gemini</option>
-        <option value="mistral">Mistral</option>
-      </optgroup>
-      <optgroup label="Paid">
-        <option value="openai">OpenAI</option>
-        <option value="anthropic">Anthropic (Claude)</option>
-      </optgroup>
+      <option value="openrouter">OpenRouter (free models)</option>
+      <option value="gemini">Google Gemini</option>
     </select>
 
     <label for="apiKey">API key <a id="getKey" href="#" target="_blank" rel="noopener">Get a key ↗</a></label>
     <div class="key">
-      <input id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your API key">
+      <input id="apiKey" type="password" autocomplete="off" spellcheck="false">
       <button id="toggle" type="button">Show</button>
     </div>
 
@@ -105,7 +97,7 @@
     </div>
   </main>
 
-  <footer>Key stays in this browser. Chat text is sent only to the provider above.</footer>
+  <footer>Each provider keeps its own key, stored only in this browser. Chat text is sent only to the selected provider.</footer>
   </div></div>
 
   <script src="popup.js"></script>
